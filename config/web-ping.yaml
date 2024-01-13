@@ -1,0 +1,66 @@
+openapi: 3.0.3
+info:
+  title: Web Ping
+  description: Web Ping
+  version: 1.0.0
+servers:
+  - url: 'https'
+paths:
+  /ping:
+    post:
+        summary: Ping
+        operationId: ping
+        requestBody:
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/PingRequest'
+        responses:
+            '200':
+              description: OK
+              content:
+                application/json:
+                  schema:
+                    $ref: '#/components/schemas/PingResponse'
+            '400':
+              description: Bad Request
+              content:
+                  application/json:
+                    schema:
+                        $ref: '#/components/schemas/Error'
+components:
+    schemas:
+        PingRequest:
+          type: object
+          properties:
+              url:
+                type: string
+                description: URL to ping
+                example: https://www.google.com
+        PingResponse:
+          type: object
+          properties:
+            url:
+              type: string
+              description: URL that was pinged
+              example: https://www.google.com
+            status:
+              type: integer
+              description: HTTP status code
+              example: 200
+            time:
+              type: integer
+              description: Time in milliseconds
+              example: 100
+        Error:
+          type: object
+          properties:
+            code:
+              type: integer
+              description: Error code
+              example: 400
+            message:
+              type: string
+              description: Error message
+              example: Bad Request
+    ```

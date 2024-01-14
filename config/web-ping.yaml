@@ -2,65 +2,101 @@ openapi: 3.0.3
 info:
   title: Web Ping
   description: Web Ping
-  version: 1.0.0
+  version: 0.0.1
 servers:
   - url: 'https'
 paths:
   /ping:
     post:
-        summary: Ping
-        operationId: ping
-        requestBody:
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/PingRequest'
-        responses:
-            '200':
-              description: OK
-              content:
-                application/json:
-                  schema:
-                    $ref: '#/components/schemas/PingResponse'
-            '400':
-              description: Bad Request
-              content:
-                  application/json:
-                    schema:
-                        $ref: '#/components/schemas/Error'
+      summary: Ping
+      operationId: ping
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PingRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PingResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 components:
-    schemas:
-        PingRequest:
-          type: object
-          properties:
-              url:
-                type: string
-                description: URL to ping
-                example: https://www.google.com
-        PingResponse:
-          type: object
-          properties:
-            url:
-              type: string
-              description: URL that was pinged
-              example: https://www.google.com
-            status:
-              type: integer
-              description: HTTP status code
-              example: 200
-            time:
-              type: integer
-              description: Time in milliseconds
-              example: 100
-        Error:
-          type: object
-          properties:
-            code:
-              type: integer
-              description: Error code
-              example: 400
-            message:
-              type: string
-              description: Error message
-              example: Bad Request
-    ```
+  schemas:
+    PingRequest:
+      type: object
+      properties:
+        method:
+          required: true
+          type: string
+          description: HTTP method to use
+          example: GET
+        url:
+          $ref: '#/components/schemas/URL'
+    PingResponse:
+      type: object
+      properties:
+        url:
+          $ref: '#/components/schemas/URL'
+        remote-status:
+          required: true
+          type: integer
+          description: HTTP status code returned from the remote ping request
+          example: 200
+        time:
+          $ref: '#/components/schemas/TimeStamp'
+    ErrorResponse:
+      required: true
+      type: object
+      properties:
+        url:
+          $ref: '#/components/schemas/URL'
+        time:
+          $ref: '#/components/schemas/TimeStamp'
+        remote-status:
+          required: false
+          type: integer
+          description: HTTP status code returned from the remote ping request
+          example: 503
+        errors:
+          required: true
+          type: array
+          items:
+            oneOf:
+              - $ref: '#/components/schemas/ErrorDetail'
+    ErrorDetail:
+      type: object
+      properties:
+        code:
+          required:
+          type: integer
+          description: Error code
+          example: 400
+        message:
+          required: true
+          type: string
+          description: Error message
+          example: Bad Request
+    URL:
+      required: true
+      type: string
+      description: URL to ping
+      example: https://www.google.com
+    TimeStamp:
+      required: true
+      type: string
+      description: local time stamp
+      example: 2024-01-01T12:00:00.000-08:00

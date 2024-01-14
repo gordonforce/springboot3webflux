@@ -4,12 +4,33 @@ info:
   description: Web Ping
   version: 0.0.1
 servers:
-  - url: 'https'
+  - url: 'http://localhost:8080'
+    description: Local server
 paths:
   /ping:
     post:
       summary: Ping
       operationId: ping
+      parameters:
+        - name: x-pre-delay-ms
+          in: header
+          required: false
+          description: the number of milliseconds to delay before processing the request
+          schema:
+            type: integer
+        - name: x-post-delay-ms
+          in: header
+          required: false
+          description: the number of milliseconds to to delay after processing the request
+          schema:
+            type: integer
+        - name: x-correlation-id
+          in: header
+          required: true
+          description: a unique identifier for the request
+          schema:
+            type:
+              string
       requestBody:
         content:
           application/json:
@@ -18,18 +39,39 @@ paths:
       responses:
         '200':
           description: OK
+          headers:
+            x-correlation-id:
+              required: true
+              description: the unique identifier sent in the request
+              schema:
+                type:
+                  string
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/PingResponse'
         '400':
           description: Bad Request
+          headers:
+            x-correlation-id:
+              required: true
+              description: the unique identifier sent in the request
+              schema:
+                type:
+                  string
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         '503':
           description: Service Unavailable
+          headers:
+            x-correlation-id:
+              required: true
+              description: the unique identifier sent in the request
+              schema:
+                type:
+                  string
           content:
             application/json:
               schema:
@@ -66,7 +108,7 @@ components:
           $ref: '#/components/schemas/URL'
         time:
           $ref: '#/components/schemas/TimeStamp'
-        remote-status:
+        remote-http-status-code:
           required: false
           type: integer
           description: HTTP status code returned from the remote ping request
@@ -82,14 +124,19 @@ components:
       properties:
         code:
           required:
-          type: integer
-          description: Error code
-          example: 400
+          type: string
+          description: a code describing the type of error
+          example: could not find hostname
         message:
           required: true
           type: string
-          description: Error message
+          description: a human readable error message
           example: Bad Request
+        system:
+          required: true
+          type: string
+          description: The name of the system or host that generated the error
+          example: www.google.com, or web-ping
     URL:
       required: true
       type: string

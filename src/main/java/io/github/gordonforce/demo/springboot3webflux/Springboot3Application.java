@@ -1,4 +1,4 @@
-package io.leftcoast.springboot3;
+package io.github.gordonforce.demo.springboot3webflux;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

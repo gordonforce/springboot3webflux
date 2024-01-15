@@ -1,0 +1,25 @@
+dateLibrary: java8
+developerName: Gordon Force
+developerEmail: not provided
+developerOrganization: individual
+developerOrganizationUrl: https://githb.com/gordonforce
+library: spring-boot
+licenseName: MIT
+licenseUrl: https://opensource.org/licenses/MIT
+parentArtifactId: spring-boot-starter-parent
+parentGroupId: org.springframework.boot
+parentVersion: 3.2.1
+reactive: true
+requestMappingMode: controller
+returnSuccessCode: true
+scmConnection: scm:git:git@github.com:gordonforce/springboot3webflux.git
+scmDeveloperConnection: scm:git:git@github.com:gordonforce/springboot3webflux.git
+scmUrl: https://github.com/gordonforce/springboot3webflux
+serializationLibrary: jackson
+snapshotVersion: true
+useBeanValidation: true
+useEnumCaseInsensitive: true
+useGzipFeature: true
+useJakarateEe: true
+useOptional: true
+useSpringBoot3: true

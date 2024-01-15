@@ -3,22 +3,59 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
+
+  <name>Spring Boot 3 &amp; WebFlux Demo</name>
+  <description>A reactive Spring Boot 3 application demo using spring cloud reslisence</description>
+
+  <groupId>io.github.gordonforce.demo</groupId>
+  <artifactId>springboot3webflux-demo</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <packaging>war</packaging>
+
+  <url>https://github.com/gordonforce/springboot3webflux</url>
+  <scm>
+    <connection>scm:git:git@github.com:gordonforce/springboot3webflux.git</connection>
+    <developerConnection>scm:git:git@github.com:gordonforce/springboot3webflux.git
+    </developerConnection>
+    <url>https://github.com/gordonforce/springboot3webflux</url>
+  </scm>
+
+  <developers>
+    <developer>
+      <name>Gordon Force</name>
+      <email>not provided</email>
+      <organization>individual</organization>
+      <organizationUrl>https://githb.com/gordonforce</organizationUrl>
+    </developer>
+  </developers>
+
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
     <version>3.2.1</version>
     <relativePath/> <!-- lookup parent from repository -->
   </parent>
-  <groupId>io.github.gordonforce.demo</groupId>
-  <artifactId>springboot3webflux-demo</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
-  <packaging>war</packaging>
-  <name>Spring Boot 3 &amp; WebFlux Demo</name>
-  <description>A reactive Spring Boot 3 application demo using spring cloud reslisence</description>
+
   <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <java.version>17</java.version>
+    <maven.compiler.source>${java.version}</maven.compiler.source>
+    <maven.compiler.target>${java.version}</maven.compiler.target>
     <spring-cloud.version>2023.0.0</spring-cloud.version>
   </properties>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-dependencies</artifactId>
+        <version>${spring-cloud.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
   <dependencies>
     <dependency>
       <groupId>org.springframework.boot</groupId>
@@ -66,17 +103,7 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
-  <dependencyManagement>
-    <dependencies>
-      <dependency>
-        <groupId>org.springframework.cloud</groupId>
-        <artifactId>spring-cloud-dependencies</artifactId>
-        <version>${spring-cloud.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
+
 
   <build>
     <plugins>

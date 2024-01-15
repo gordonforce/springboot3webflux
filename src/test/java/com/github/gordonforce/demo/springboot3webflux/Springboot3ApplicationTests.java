@@ -1,4 +1,4 @@
-package io.github.gordonforce.demo.springboot3webflux;
+package com.github.gordonforce.demo.springboot3webflux;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

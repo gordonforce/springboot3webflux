@@ -1,139 +1,168 @@
-openapi: 3.0.3
+components:
+  headers:
+    CorrelationId:
+      required: true
+      schema:
+        $ref: '#/components/schemas/CorrelationId'
+    DateTime:
+      required: true
+      schema:
+        $ref: '#/components/schemas/DateTime'
+  parameters:
+    CorrelationId:
+      in: header
+      name: x-correlation-id
+      required: true
+      schema:
+        $ref: '#/components/schemas/CorrelationId'
+  schemas:
+    CorrelationId:
+      description: a unique identifier for the request
+      example: 123e4567-e89b-12d3-a456-426614174000
+      format: uuid
+      type: string
+    DateTime:
+      description: origination local time stamp
+      example: 2024-01-01T12:00:00.000-08:00
+      format: date-time
+      type: string
+    ErrorDetail:
+      properties:
+        code:
+          description: a code describing the type of error
+          example: could not find hostname
+          type: string
+        message:
+          description: a human readable error message
+          example: Bad Request
+          type: string
+        system:
+          description: The name of the system or host that generated the error
+          example: www.google.com, or web-ping
+          type: string
+      required:
+        - code
+        - message
+        - system
+      type: object
+    ErrorResponse:
+      properties:
+        errors:
+          items:
+            $ref: '#/components/schemas/ErrorDetail'
+          type: array
+        remote-http-status-code:
+          $ref: '#/components/schemas/RemoteHttpStatusCode'
+      required:
+        - errors
+      type: object
+    PingRequest:
+      properties:
+        method:
+          description: HTTP method to use
+          enum:
+            - delete
+            - get
+            - head
+            - options
+            - patch
+            - post
+            - put
+          example: get
+          type: string
+        uri:
+          $ref: '#/components/schemas/URI'
+      required:
+        - method
+        - uri
+      type: object
+    PingResponse:
+      properties:
+        remoteHttpStatusCode:
+          $ref: '#/components/schemas/RemoteHttpStatusCode'
+        remoteOriginationDate:
+          $ref: '#/components/schemas/DateTime'
+      required:
+        - remoteHttpStatusCode
+        - remoteOriginationDate
+      type: object
+    RemoteHttpStatusCode:
+      description: HTTP status code returned from the remote ping request
+      example: 503
+      exclusiveMaximum: true
+      maximum: 600
+      minimum: 100
+      type: integer
+    URI:
+      description: URL to ping
+      example: https://www.google.com
+      format: uri
+      type: string
 info:
-  title: Web Ping
   description: Web Ping
+  title: Web Ping
   version: 0.0.1
-servers:
-  - url: 'http://localhost:8080'
-    description: Local server
+openapi: 3.0.3
 paths:
   /ping:
+    parameters:
+      - $ref: '#/components/parameters/CorrelationId'
     post:
-      summary: Ping
       operationId: ping
       parameters:
-        - name: x-pre-delay-ms
-          in: header
-          required: false
-          description: the number of milliseconds to delay before processing the request
-          schema:
-            type: integer
         - name: x-post-delay-ms
+          description: the number of milliseconds to to delay after processing the request
           in: header
           required: false
-          description: the number of milliseconds to to delay after processing the request
           schema:
             type: integer
-        - name: x-correlation-id
+        - name: x-pre-delay-ms
+          description: the number of milliseconds to delay before processing the request
           in: header
-          required: true
-          description: a unique identifier for the request
+          required: false
           schema:
-            type:
-              string
+            type: integer
       requestBody:
-        required: true
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/PingRequest'
+        required: true
       responses:
         '200':
-          description: OK
-          headers:
-            x-correlation-id:
-              required: true
-              description: the unique identifier sent in the request
-              schema:
-                type:
-                  string
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/PingResponse'
+          description: OK
+          headers:
+            date:
+              $ref: '#/components/headers/DateTime'
+            x-correlation-id:
+              $ref: '#/components/headers/CorrelationId'
         '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
           description: Bad Request
           headers:
+            date:
+              $ref: '#/components/headers/DateTime'
             x-correlation-id:
-              required: true
-              description: the unique identifier sent in the request
-              schema:
-                type:
-                  string
+              $ref: '#/components/headers/CorrelationId'
+        '503':
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-        '503':
           description: Service Unavailable
           headers:
+            date:
+              $ref: '#/components/headers/DateTime'
             x-correlation-id:
-              required: true
-              description: the unique identifier sent in the request
-              schema:
-                type:
-                  string
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-components:
-  schemas:
-    PingRequest:
-      type: object
-      properties:
-        method:
-          type: string
-          description: HTTP method to use
-          example: GET
-        url:
-          $ref: '#/components/schemas/URL'
-    PingResponse:
-      type: object
-      properties:
-        url:
-          $ref: '#/components/schemas/URL'
-        remote-status-code:
-          type: integer
-          description: HTTP status code returned from the remote ping request
-          example: 200
-        date:
-          $ref: '#/components/schemas/TimeStamp'
-    ErrorResponse:
-      type: object
-      properties:
-        url:
-          $ref: '#/components/schemas/URL'
-        time:
-          $ref: '#/components/schemas/TimeStamp'
-        remote-http-status-code:
-          type: integer
-          description: HTTP status code returned from the remote ping request
-          example: 503
-        errors:
-          type: array
-          items:
-            $ref: '#/components/schemas/ErrorDetail'
-    ErrorDetail:
-      type: object
-      properties:
-        code:
-          type: string
-          description: a code describing the type of error
-          example: could not find hostname
-        message:
-          type: string
-          description: a human readable error message
-          example: Bad Request
-        system:
-          type: string
-          description: The name of the system or host that generated the error
-          example: www.google.com, or web-ping
-    URL:
-      type: string
-      description: URL to ping
-      example: https://www.google.com
-    TimeStamp:
-      type: string
-      description: local time stamp
-      example: 2024-01-01T12:00:00.000-08:00
+              $ref: '#/components/headers/CorrelationId'
+      summary: Ping
+servers:
+  - url: 'http://localhost:8080'
+    description: Local server

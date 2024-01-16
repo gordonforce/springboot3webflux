@@ -2,10 +2,11 @@ package com.github.gordonforce.demo.springboot3webflux.feature.webping.impl;
 
 import com.github.gordonforce.demo.springboot3webflux.feature.webping.*;
 import java.time.Duration;
+import java.time.Instant;
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.util.EnumMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -31,7 +32,7 @@ public class PingRemoteServiceImpl implements PingRemoteService {
   }
 
   @Override
-  public Mono<PingResponse> pingRemote(
+  public Mono<PingRemoteResponse> pingRemote(
       final PingRequest pingRequest, final Duration preDelay, final Duration postDelay) {
 
     return Mono.delay(preDelay)
@@ -42,14 +43,14 @@ public class PingRemoteServiceImpl implements PingRemoteService {
         .delayElement(postDelay)
         .map(
             rsp ->
-                new PingResponse(
+                new PingRemoteResponse(
                     rsp.getStatusCode().value(),
                     Optional.of(rsp.getHeaders())
-                        .flatMap(
+                        .map(
                             h ->
-                                Objects.requireNonNull(h.get(HttpHeaders.DATE)).stream()
-                                    .findFirst())
-                        .map(OffsetDateTime::parse)
+                                Instant.ofEpochMilli(h.getFirstDate(HttpHeaders.DATE))
+                                    .atZone(ZoneId.systemDefault()))
+                        .map(OffsetDateTime::from)
                         .orElseGet(OffsetDateTime::now)));
   }
 }

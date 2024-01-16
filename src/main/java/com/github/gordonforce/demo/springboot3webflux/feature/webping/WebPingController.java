@@ -1,5 +1,8 @@
 package com.github.gordonforce.demo.springboot3webflux.feature.webping;
 
+import com.github.gordonforce.demo.springboot3webflux.api.ExecutionContext;
+import com.github.gordonforce.demo.springboot3webflux.api.ExecutionContextsBuilder;
+import com.github.gordonforce.demo.springboot3webflux.errorhandling.ErrorResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -11,7 +14,6 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
-import java.util.Optional;
 import java.util.UUID;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -86,22 +88,30 @@ public class WebPingController {
               name = "x-post-delay-ms",
               description = "the number of milliseconds to to delay after processing the request",
               in = ParameterIn.HEADER)
-          @RequestHeader(value = "x-post-delay-ms", required = false)
-          Optional<Integer> xPostDelayMs,
+          @RequestHeader(value = "x-post-delay-ms", required = false, defaultValue = "0")
+          int xPostDelayMs,
       @Parameter(
               name = "x-pre-delay-ms",
               description = "the number of milliseconds to delay before processing the request",
               in = ParameterIn.HEADER)
-          @RequestHeader(value = "x-pre-delay-ms", required = false)
-          Optional<Integer> xPreDelayMs) {
+          @RequestHeader(value = "x-pre-delay-ms", required = false, defaultValue = "0")
+          int xPreDelayMs) {
 
     return Mono.just(
         ResponseEntity.ok()
             .header("x-correlation-id", xCorrelationId.toString())
             .body(
-                pingRemoteService.pingRemote(
-                    pingRequest,
-                    Duration.of(xPreDelayMs.orElse(0), ChronoUnit.MILLIS),
-                    Duration.of(xPostDelayMs.orElse(0), ChronoUnit.MILLIS))));
+                Mono.just(
+                    new PingResponse(
+                        true,
+                        ExecutionContextsBuilder.of()
+                            .addInfo(new ExecutionContext("200", "ping successful", "WebPing"))
+                            .build(),
+                        pingRemoteService
+                            .pingRemote(
+                                pingRequest,
+                                Duration.of(xPreDelayMs, ChronoUnit.MILLIS),
+                                Duration.of(xPostDelayMs, ChronoUnit.MILLIS))
+                            .block()))));
   }
 }

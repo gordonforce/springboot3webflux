@@ -1,9 +1,9 @@
-package com.github.gordonforce.demo.springboot3webflux.feature.webping;
+package com.github.gordonforce.demo.springboot3webflux.api;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 
-public record ErrorDetail(
+public record ExecutionContext(
     @Schema(
             name = "code",
             example = "could not find hostname",

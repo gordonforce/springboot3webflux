@@ -33,7 +33,7 @@ public class ExecutionContextsBuilder {
             code, String.join(": ", messagePrefix, throwable.getMessage()), system));
 
     if (throwable.getCause() != null) {
-      addThrowable(code, system, messagePrefix, throwable.getCause());
+      addThrowable(code, messagePrefix, system, throwable.getCause());
     }
 
     return this;

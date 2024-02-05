@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.Optional;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
@@ -35,12 +37,27 @@ public class PingRemoteServiceImpl implements PingRemoteService {
   public Mono<PingRemoteResponse> pingRemote(
       final PingRequest pingRequest, final Duration preDelay, final Duration postDelay) {
 
-    return Mono.delay(preDelay)
-        .then(
-            pingRemoteEndpoint.pingRemoteEndpoint(
-                HTTP_METHOD_MAP.getOrDefault(pingRequest.method(), HttpMethod.GET),
-                pingRequest.uri()))
+    return Mono.just(pingRequest)
+        .delayElement(preDelay)
+        .flatMap(
+            request ->
+                pingRemoteEndpoint
+                    .pingRemoteEndpoint(
+                        HTTP_METHOD_MAP.getOrDefault(pingRequest.method(), HttpMethod.GET),
+                        request.uri())
+                    .handle(
+                        (responseEntity, sink) -> {
+                          if (HttpStatus.OK.equals(responseEntity.getStatusCode())) {
+                            sink.next(responseEntity);
+                          } else {
+                            sink.error(
+                                new IllegalStateException(
+                                    "Unexpected http status code: "
+                                        + responseEntity.getStatusCode().value()));
+                          }
+                        }))
         .delayElement(postDelay)
+        .cast(ResponseEntity.class)
         .map(
             rsp ->
                 new PingRemoteResponse(
